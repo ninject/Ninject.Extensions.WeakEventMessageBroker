@@ -1,10 +1,10 @@
 #region Using Directives
 
-using Ninject.Extensions.WeakEventMessageBroker;
+
 
 #endregion
 
-namespace Ninject.Extensions.WeakEventBroker.Tests
+namespace Ninject.Extensions.WeakEventMessageBroker.Tests
 {
     public class SubscriberMock
     {

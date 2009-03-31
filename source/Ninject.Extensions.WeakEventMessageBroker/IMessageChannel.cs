@@ -20,6 +20,7 @@
 
 #region Using Directives
 
+using System;
 using System.Collections;
 using System.Reflection;
 
@@ -27,7 +28,7 @@ using System.Reflection;
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
-    public interface IMessageChannel
+    public interface IMessageChannel : IDisposable
     {
         string Name { get; }
 

@@ -43,22 +43,28 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         public IMessageChannel GetChannel( string name )
         {
             IMessageChannel channel;
-            if ( _channels.ContainsKey( name ) )
+            lock ( _channels )
             {
-                return _channels[name];
+                if ( _channels.ContainsKey( name ) )
+                {
+                    return _channels[name];
+                }
+                channel = new MessageChannel( name );
+                _channels.Add( name, channel );
             }
-            channel = new MessageChannel( name );
-            _channels.Add( name, channel );
             return channel;
         }
 
         public void CloseChannel( string name )
         {
             IMessageChannel channel;
-            if ( _channels.ContainsKey( name ) )
+            lock ( _channels )
             {
-                channel = _channels[name];
-                channel.Close();
+                if ( _channels.ContainsKey( name ) )
+                {
+                    channel = _channels[name];
+                    channel.Close();
+                }
             }
         }
 
@@ -75,6 +81,22 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         }
 
         #endregion
+
+        public override void Dispose( bool disposing )
+        {
+            if ( disposing && !IsDisposed )
+            {
+                lock ( _channels )
+                {
+                    foreach ( IMessageChannel channel in _channels.Values )
+                    {
+                        channel.Dispose();
+                    }
+                    _channels.Clear();
+                }
+            }
+            base.Dispose( disposing );
+        }
 
         #region Implementation of IHaveKernel
 

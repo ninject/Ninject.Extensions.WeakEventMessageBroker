@@ -8,8 +8,8 @@
     <ProjectGuid>{F66149D6-AA5D-479B-9B58-1DA98CBB00A4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ninject.Extensions.WeakEventBroker.Tests</RootNamespace>
-    <AssemblyName>Ninject.Extensions.WeakEventBroker.Tests</AssemblyName>
+    <RootNamespace>Ninject.Extensions.WeakEventMessageBroker.Tests</RootNamespace>
+    <AssemblyName>Ninject.Extensions.WeakEventMessageBroker.Tests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

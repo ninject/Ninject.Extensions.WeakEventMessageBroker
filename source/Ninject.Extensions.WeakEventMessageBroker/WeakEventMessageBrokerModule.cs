@@ -21,7 +21,6 @@
 #region Using Directives
 
 using Ninject.Activation.Strategies;
-using Ninject.Extensions.WeakEventMessageBroker;
 using Ninject.Modules;
 using Ninject.Planning.Strategies;
 

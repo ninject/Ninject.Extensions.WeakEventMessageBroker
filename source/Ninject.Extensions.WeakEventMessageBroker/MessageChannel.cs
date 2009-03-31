@@ -105,6 +105,15 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 
         #endregion
 
+        public override void Dispose( bool disposing )
+        {
+            if ( disposing && !IsDisposed )
+            {
+                Close();
+            }
+            base.Dispose( disposing );
+        }
+
         public void Broadcast( object sender, object args )
         {
             Raise( this, (EventArgs) args );

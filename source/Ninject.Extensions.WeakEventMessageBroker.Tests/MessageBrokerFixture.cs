@@ -1,12 +1,11 @@
 ﻿#region Using Directives
 
 using System;
-using Ninject.Extensions.WeakEventMessageBroker;
 using Xunit;
 
 #endregion
 
-namespace Ninject.Extensions.WeakEventBroker.Tests
+namespace Ninject.Extensions.WeakEventMessageBroker.Tests
 {
     public class MessageBrokerFixture
     {
@@ -187,6 +186,23 @@ namespace Ninject.Extensions.WeakEventBroker.Tests
                 Assert.Equal( channel.Subscriptions.Count, 0 );
                 Assert.Empty( channel.Subscriptions );
             }
+        }
+
+        [Fact]
+        public void PublishersAreClearedWhenBrokerIsShutDown()
+        {
+            PublisherMock pub;
+            using ( var kernel = new StandardKernel() )
+            {
+                pub = kernel.Get<PublisherMock>();
+                Assert.NotNull( pub );
+
+                var sub = kernel.Get<SubscriberMock>();
+                Assert.NotNull( sub );
+
+                Assert.True( pub.HasListeners );
+            }
+            Assert.False( pub.HasListeners );
         }
     }
 }
