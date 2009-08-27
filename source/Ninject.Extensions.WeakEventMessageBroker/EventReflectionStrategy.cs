@@ -42,6 +42,11 @@ namespace Ninject.Extensions.WeakEventMessageBroker
     {
         private const BindingFlags _bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <param name="injectorFactory"></param>
         public EventReflectionStrategy( ISelector selector, IInjectorFactory injectorFactory )
         {
             Selector = selector;

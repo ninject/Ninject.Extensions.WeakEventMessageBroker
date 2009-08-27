@@ -43,24 +43,17 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventBindingStrategy.cs" />
     <Compile Include="EventReflectionStrategy.cs" />
     <Compile Include="ExtensionsForICustomAttributeProvider.cs" />
-    <Compile Include="FastSmartWeakEventForwarderProvider.cs" />
+    <Compile Include="ILEmitter.cs" />
+    <Compile Include="TransportProvider.cs" />
     <Compile Include="IWeakEventMessageBroker.cs" />
     <Compile Include="IMessageChannel.cs" />
     <Compile Include="WeakEventMessageBroker.cs" />
-    <Compile Include="EventEntry.cs" />
+    <Compile Include="TransportCacheEntry.cs" />
     <Compile Include="Publication.cs" />
     <Compile Include="WeakEventMessageBrokerModule.cs" />
     <Compile Include="MessageChannel.cs" />

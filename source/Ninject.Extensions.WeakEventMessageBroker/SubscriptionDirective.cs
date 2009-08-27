@@ -27,11 +27,11 @@ using Ninject.Planning.Directives;
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class SubscriptionDirective : IDirective
     {
-        private readonly string _channel;
-        private readonly MethodInfo _methodInfo;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SubscriptionDirective"/> class.
         /// </summary>
@@ -39,27 +39,21 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         /// <param name="methodInfo">The method info.</param>
         public SubscriptionDirective( string channel, MethodInfo methodInfo )
         {
-            _channel = channel;
-            _methodInfo = methodInfo;
+            Channel = channel;
+            MethodInfo = methodInfo;
         }
 
         /// <summary>
         /// Gets the channel.
         /// </summary>
         /// <value>The channel.</value>
-        public string Channel
-        {
-            get { return _channel; }
-        }
+        public string Channel { get; private set; }
 
         /// <summary>
         /// Gets the method info used to call back on the subscriber when a
         /// message is received on the channel
         /// </summary>
         /// <value>The method info.</value>
-        public MethodInfo MethodInfo
-        {
-            get { return _methodInfo; }
-        }
+        public MethodInfo MethodInfo { get; private set; }
     }
 }

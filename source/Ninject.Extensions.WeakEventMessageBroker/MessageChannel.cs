@@ -30,53 +30,85 @@ using Ninject.Infrastructure.Disposal;
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class MessageChannel : DisposableObject, IMessageChannel
     {
-        private static readonly MethodInfo _broadcastMethod = typeof (MessageChannel).GetMethod( "Broadcast",
-                                                                                                 new[]
-                                                                                                 {
-                                                                                                     typeof (object),
-                                                                                                     typeof (object)
-                                                                                                 } );
+        private static readonly MethodInfo BroadcastMethod = typeof (MessageChannel).GetMethod( "Broadcast",
+                                                                                                new[]
+                                                                                                {
+                                                                                                    typeof (object),
+                                                                                                    typeof (object)
+                                                                                                } );
 
         private readonly List<Publication> _publications;
-        private readonly List<EventEntry> _subscriptions;
-        private bool _enabled;
+        private readonly List<TransportCacheEntry> _subscriptions;
+        private volatile bool _enabled;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name">The name of this channel.</param>
         public MessageChannel( string name )
         {
             Name = name;
-            _subscriptions = new List<EventEntry>();
+            _subscriptions = new List<TransportCacheEntry>();
             _publications = new List<Publication>();
             _enabled = true;
         }
 
         #region Implementation of IMessageChannel
 
+        /// <summary>
+        /// Gets the name of the channel.
+        /// </summary>
         public string Name { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ICollection Subscriptions
         {
-            get { return new List<EventEntry>( _subscriptions ).AsReadOnly(); }
+            get { return new List<TransportCacheEntry>( _subscriptions ).AsReadOnly(); }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="eventInfo"></param>
         public void AddPublication( object instance, EventInfo eventInfo )
         {
-            Delegate method = Delegate.CreateDelegate( eventInfo.EventHandlerType, this, _broadcastMethod );
+            Delegate method = Delegate.CreateDelegate( eventInfo.EventHandlerType, this, BroadcastMethod );
             eventInfo.AddEventHandler( instance, method );
             lock ( _publications )
             {
-                _publications.Add( new Publication
-                                   {Method = method, Instance = new WeakReference( instance ), Event = eventInfo} );
+                var publication = new Publication
+                                  {
+                                      Method = method,
+                                      Instance = new WeakReference( instance ),
+                                      Event = eventInfo
+                                  };
+                _publications.Add( publication );
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
         public void AddSubscription( object instance, MethodInfo method )
         {
-            _subscriptions.Add( new EventEntry( FastSmartWeakEventForwarderProvider.GetForwarder( method ), method,
-                                                new WeakReference( instance ) ) );
+            var transportCacheEntry = new TransportCacheEntry( TransportProvider.GetTransport( method ),
+                                                               new WeakReference( instance ) );
+            _subscriptions.Add( transportCacheEntry );
         }
 
+        /// <summary>
+        /// Closes the channel releasing its resources.
+        /// </summary>
         public void Close()
         {
             lock ( _publications )
@@ -93,11 +125,17 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             }
         }
 
+        /// <summary>
+        /// Enables the channel.
+        /// </summary>
         public void Enable()
         {
             _enabled = true;
         }
 
+        /// <summary>
+        /// Disables the channel.
+        /// </summary>
         public void Disable()
         {
             _enabled = false;
@@ -105,6 +143,9 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 
         #endregion
 
+        /// <summary>
+        /// Releases resources held by the object.
+        /// </summary>
         public override void Dispose( bool disposing )
         {
             if ( disposing && !IsDisposed )
@@ -114,11 +155,21 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             base.Dispose( disposing );
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         public void Broadcast( object sender, object args )
         {
             Raise( this, (EventArgs) args );
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void Raise( object sender, EventArgs e )
         {
             if ( !_enabled )
@@ -128,9 +179,9 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 
             lock ( _subscriptions )
             {
-                foreach ( EventEntry ee in _subscriptions.ToArray() )
+                foreach ( TransportCacheEntry transportCacheEntry in _subscriptions.ToArray() )
                 {
-                    ee.Forwarder( ee.TargetReference, sender, e );
+                    transportCacheEntry.Transport( transportCacheEntry.Target, sender, e );
                 }
             }
             RemoveDeadEntries();
@@ -141,8 +192,8 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         {
             lock ( _subscriptions )
             {
-                _subscriptions.RemoveAll( subscription => subscription.TargetReference != null &&
-                                                          !subscription.TargetReference.IsAlive );
+                _subscriptions.RemoveAll( subscription => subscription.Target != null &&
+                                                          !subscription.Target.IsAlive );
             }
 
             lock ( _publications )

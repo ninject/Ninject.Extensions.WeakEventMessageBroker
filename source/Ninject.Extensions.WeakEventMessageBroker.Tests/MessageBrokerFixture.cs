@@ -14,16 +14,16 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
         {
             using ( var kernel = new StandardKernel() )
             {
-                var pub = kernel.Get<PublisherMock>();
-                Assert.NotNull( pub );
+                var publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull( publisher );
 
                 var sub = kernel.Get<SubscriberMock>();
                 Assert.NotNull( sub );
 
-                Assert.True( pub.HasListeners );
+                Assert.True( publisher.HasListeners );
                 Assert.Null( sub.LastMessage );
 
-                pub.SendMessage( "Hello, world!" );
+                publisher.SendMessage( "Hello, world!" );
 
                 Assert.Equal( sub.LastMessage, "Hello, world!" );
             }
@@ -39,21 +39,21 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
                 Assert.NotNull( pub1 );
                 Assert.NotNull( pub2 );
 
-                var sub = kernel.Get<SubscriberMock>();
-                Assert.NotNull( sub );
+                var subscriber = kernel.Get<SubscriberMock>();
+                Assert.NotNull( subscriber );
 
                 Assert.True( pub1.HasListeners );
                 Assert.True( pub2.HasListeners );
-                Assert.Null( sub.LastMessage );
+                Assert.Null( subscriber.LastMessage );
 
                 pub1.SendMessage( "Hello, world!" );
-                Assert.Equal( sub.LastMessage, "Hello, world!" );
+                Assert.Equal( subscriber.LastMessage, "Hello, world!" );
 
-                sub.LastMessage = null;
-                Assert.Null( sub.LastMessage );
+                subscriber.LastMessage = null;
+                Assert.Null( subscriber.LastMessage );
 
                 pub2.SendMessage( "Hello, world!" );
-                Assert.Equal( sub.LastMessage, "Hello, world!" );
+                Assert.Equal( subscriber.LastMessage, "Hello, world!" );
             }
         }
 
@@ -62,19 +62,19 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
         {
             using ( var kernel = new StandardKernel() )
             {
-                var pub = kernel.Get<PublisherMock>();
-                Assert.NotNull( pub );
+                var publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull( publisher );
 
                 var sub1 = kernel.Get<SubscriberMock>();
                 var sub2 = kernel.Get<SubscriberMock>();
                 Assert.NotNull( sub1 );
                 Assert.NotNull( sub2 );
 
-                Assert.True( pub.HasListeners );
+                Assert.True( publisher.HasListeners );
                 Assert.Null( sub1.LastMessage );
                 Assert.Null( sub2.LastMessage );
 
-                pub.SendMessage( "Hello, world!" );
+                publisher.SendMessage( "Hello, world!" );
                 Assert.Equal( sub1.LastMessage, "Hello, world!" );
                 Assert.Equal( sub2.LastMessage, "Hello, world!" );
             }
@@ -120,20 +120,20 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
         {
             using ( var kernel = new StandardKernel() )
             {
-                var pub = kernel.Get<PublisherMock>();
-                Assert.NotNull( pub );
+                var publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull( publisher );
 
-                var sub = kernel.Get<SubscriberMock>();
-                Assert.NotNull( sub );
+                var subscriber = kernel.Get<SubscriberMock>();
+                Assert.NotNull( subscriber );
 
-                Assert.Null( sub.LastMessage );
+                Assert.Null( subscriber.LastMessage );
 
                 var messageBroker = kernel.Components.Get<IWeakEventMessageBroker>();
                 messageBroker.DisableChannel( "message://PublisherMock/MessageReceived" );
-                Assert.True( pub.HasListeners );
+                Assert.True( publisher.HasListeners );
 
-                pub.SendMessage( "Hello, world!" );
-                Assert.Null( sub.LastMessage );
+                publisher.SendMessage( "Hello, world!" );
+                Assert.Null( subscriber.LastMessage );
             }
         }
 
@@ -142,20 +142,20 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
         {
             using ( var kernel = new StandardKernel() )
             {
-                var pub = kernel.Get<PublisherMock>();
-                Assert.NotNull( pub );
+                var publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull( publisher );
 
-                var sub = kernel.Get<SubscriberMock>();
-                Assert.NotNull( sub );
+                var subscriber = kernel.Get<SubscriberMock>();
+                Assert.NotNull( subscriber );
 
-                Assert.Null( sub.LastMessage );
+                Assert.Null( subscriber.LastMessage );
 
                 var messageBroker = kernel.Components.Get<IWeakEventMessageBroker>();
                 messageBroker.CloseChannel( "message://PublisherMock/MessageReceived" );
-                Assert.False( pub.HasListeners );
+                Assert.False( publisher.HasListeners );
 
-                pub.SendMessage( "Hello, world!" );
-                Assert.Null( sub.LastMessage );
+                publisher.SendMessage( "Hello, world!" );
+                Assert.Null( subscriber.LastMessage );
             }
         }
 
@@ -164,11 +164,11 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
         {
             using ( var kernel = new StandardKernel() )
             {
-                var pub = kernel.Get<PublisherMock>();
-                Assert.NotNull( pub );
+                var publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull( publisher );
 
-                var sub = kernel.Get<SubscriberMock>();
-                Assert.NotNull( sub );
+                var subscriber = kernel.Get<SubscriberMock>();
+                Assert.NotNull( subscriber );
 
                 var messageBroker = kernel.Components.Get<IWeakEventMessageBroker>();
                 IMessageChannel channel = messageBroker.GetChannel( "message://PublisherMock/MessageReceived" );
@@ -176,33 +176,32 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
 
                 // Destroy the subscriber.
 // ReSharper disable RedundantAssignment
-                sub = null; // needed for GC to clean.
+                subscriber = null; // needed for GC to clean.
 // ReSharper restore RedundantAssignment
-                GC.Collect();
+                GC.Collect(2);
                 GC.WaitForPendingFinalizers();
 
                 // when messages are sent the subscriptions are updated.
-                pub.SendMessage( "message" );
+                publisher.SendMessage( "message" );
                 Assert.Equal( channel.Subscriptions.Count, 0 );
-                Assert.Empty( channel.Subscriptions );
             }
         }
 
         [Fact]
         public void PublishersAreClearedWhenBrokerIsShutDown()
         {
-            PublisherMock pub;
+            PublisherMock publisher;
             using ( var kernel = new StandardKernel() )
             {
-                pub = kernel.Get<PublisherMock>();
-                Assert.NotNull( pub );
+                publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull( publisher );
 
                 var sub = kernel.Get<SubscriberMock>();
                 Assert.NotNull( sub );
 
-                Assert.True( pub.HasListeners );
+                Assert.True( publisher.HasListeners );
             }
-            Assert.False( pub.HasListeners );
+            Assert.False( publisher.HasListeners );
         }
     }
 }

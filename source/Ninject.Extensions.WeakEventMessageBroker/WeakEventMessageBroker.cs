@@ -22,24 +22,33 @@
 
 using System.Collections.Generic;
 using Ninject.Components;
-using Ninject.Infrastructure;
 
 #endregion
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
-    public class WeakEventMessageBroker : NinjectComponent, IWeakEventMessageBroker, IHaveKernel
+    /// <summary>
+    /// 
+    /// </summary>
+    public class WeakEventMessageBroker : NinjectComponent, IWeakEventMessageBroker
     {
         private readonly Dictionary<string, IMessageChannel> _channels;
 
-        public WeakEventMessageBroker( IKernel kernel )
+        /// <summary>
+        /// 
+        /// </summary>
+        public WeakEventMessageBroker()
         {
-            Kernel = kernel;
             _channels = new Dictionary<string, IMessageChannel>();
         }
 
         #region Implementation of IWeakEventMessageBroker
 
+        /// <summary>
+        /// Returns a channel with the specified name, creating it first if necessary.
+        /// </summary>
+        /// <param name="name">The name of the channel to create or retrieve.</param>
+        /// <returns>The object representing the channel.</returns>
         public IMessageChannel GetChannel( string name )
         {
             IMessageChannel channel;
@@ -55,25 +64,39 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             return channel;
         }
 
+        /// <summary>
+        /// Closes a channel, removing it from the message broker.
+        /// </summary>
+        /// <param name="name">The name of the channel to close.</param>
         public void CloseChannel( string name )
         {
             IMessageChannel channel;
             lock ( _channels )
             {
-                if ( _channels.ContainsKey( name ) )
+                if ( !_channels.ContainsKey( name ) )
                 {
-                    channel = _channels[name];
-                    channel.Close();
+                    return;
                 }
+                channel = _channels[name];
+                _channels.Remove( name );
+                channel.Close();
             }
         }
 
+        /// <summary>
+        /// Enables a channel, causing it to pass messages through as they occur.
+        /// </summary>
+        /// <param name="name">The name of the channel to enable.</param>
         public void EnableChannel( string name )
         {
             IMessageChannel channel = GetChannel( name );
             channel.Enable();
         }
 
+        /// <summary>
+        /// Disables a channel, which will block messages from being passed.
+        /// </summary>
+        /// <param name="name">The name of the channel to disable.</param>
         public void DisableChannel( string name )
         {
             IMessageChannel channel = GetChannel( name );
@@ -82,6 +105,9 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 
         #endregion
 
+        /// <summary>
+        /// Releases resources held by the object.
+        /// </summary>
         public override void Dispose( bool disposing )
         {
             if ( disposing && !IsDisposed )
@@ -97,11 +123,5 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             }
             base.Dispose( disposing );
         }
-
-        #region Implementation of IHaveKernel
-
-        public IKernel Kernel { get; private set; }
-
-        #endregion
     }
 }

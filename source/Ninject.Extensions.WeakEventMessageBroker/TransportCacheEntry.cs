@@ -21,30 +21,21 @@
 #region Using Directives
 
 using System;
-using System.Reflection;
 
 #endregion
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
-    /// <summary>
-    /// Tracks the publisher of an event so that it can be unhooked when the channel is closed.
-    /// </summary>
-    public class Publication
+    internal struct TransportCacheEntry
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public Delegate Method { get; set; }
+        public readonly WeakReference Target;
+        public readonly Action<WeakReference, object, EventArgs> Transport;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public WeakReference Instance { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public EventInfo Event { get; set; }
+        public TransportCacheEntry( Action<WeakReference, object, EventArgs> transport,
+                                    WeakReference target )
+        {
+            Transport = transport;
+            Target = target;
+        }
     }
 }

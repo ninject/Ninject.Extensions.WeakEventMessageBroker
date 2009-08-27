@@ -28,6 +28,9 @@ using Ninject.Planning.Strategies;
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
+    /// <summary>
+    /// Configures the kernel integrating the message broker.
+    /// </summary>
     public class WeakEventMessageBrokerModule : NinjectModule
     {
         /// <summary>

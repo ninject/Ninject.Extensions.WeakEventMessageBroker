@@ -35,6 +35,10 @@ namespace Ninject.Extensions.WeakEventMessageBroker
     /// </summary>
     public class EventBindingStrategy : ActivationStrategy
     {
+        /// <summary>
+        /// Contributes to the activation of the instance in the specified context.
+        /// </summary>
+        /// <param name="context">The context.</param>
         public override void Activate( IContext context )
         {
             var messageBroker = context.Kernel.Components.Get<IWeakEventMessageBroker>();

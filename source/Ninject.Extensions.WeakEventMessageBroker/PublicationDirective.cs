@@ -27,11 +27,11 @@ using Ninject.Planning.Directives;
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class PublicationDirective : IDirective
     {
-        private readonly string _channel;
-        private readonly EventInfo _eventInfo;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="PublicationDirective"/> class.
         /// </summary>
@@ -39,27 +39,20 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         /// <param name="eventInfo">The event tied to the channel.</param>
         public PublicationDirective( string channel, EventInfo eventInfo )
         {
-            _channel = channel;
-            _eventInfo = eventInfo;
+            Channel = channel;
+            Event = eventInfo;
         }
 
         /// <summary>
         /// Gets the channel.
         /// </summary>
         /// <value>The channel.</value>
-        public string Channel
-        {
-            get { return _channel; }
-        }
-
+        public string Channel { get; private set; }
 
         /// <summary>
         /// Gets the event tied to the channel.
         /// </summary>
         /// <value>The event.</value>
-        public EventInfo Event
-        {
-            get { return _eventInfo; }
-        }
+        public EventInfo Event { get; private set; }
     }
 }

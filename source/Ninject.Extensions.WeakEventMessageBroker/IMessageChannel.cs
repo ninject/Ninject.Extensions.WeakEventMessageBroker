@@ -28,20 +28,48 @@ using System.Reflection;
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
+    /// <summary>
+    /// Describes a communication channel used to transport messages.
+    /// </summary>
     public interface IMessageChannel : IDisposable
     {
+        /// <summary>
+        /// Gets the name of the channel.
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         ICollection Subscriptions { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="eventInfo"></param>
         void AddPublication( object instance, EventInfo eventInfo );
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="method"></param>
         void AddSubscription( object instance, MethodInfo method );
 
+        /// <summary>
+        /// Closes the channel releasing its resources.
+        /// </summary>
         void Close();
 
+        /// <summary>
+        /// Enables the channel.
+        /// </summary>
         void Enable();
 
+        /// <summary>
+        /// Disables the channel.
+        /// </summary>
         void Disable();
     }
 }
