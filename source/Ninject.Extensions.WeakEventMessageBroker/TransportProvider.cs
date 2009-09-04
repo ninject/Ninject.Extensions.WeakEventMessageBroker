@@ -85,12 +85,20 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 
         private static Action<WeakReference, object, EventArgs> CreateTransportMethod( MethodInfo method )
         {
+#if !NO_LCG
+            return DynamicTransportGenerator( method );
+#else
+            return ReflectionTransportGenerator( method );
+#endif
+        }
+
+        internal static Action<WeakReference, object, EventArgs> DynamicTransportGenerator( MethodInfo method )
+        {
 #if SILVERLIGHT
-			var dynamicMethod = new DynamicMethod( GetAnonymousMethodName(), null, Parameters, method.DeclaringType );
+            var dynamicMethod = new DynamicMethod( GetAnonymousMethodName(), null, Parameters, method.DeclaringType );
 #else
             var dynamicMethod = new DynamicMethod( GetAnonymousMethodName(), null, Parameters, method.DeclaringType, true );
 #endif
-
             ILGenerator il = dynamicMethod.GetILGenerator();
             if ( !method.IsStatic )
             {
@@ -101,6 +109,23 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 
             return (Action<WeakReference, object, EventArgs>)
                    dynamicMethod.CreateDelegate( typeof (Action<WeakReference, object, EventArgs>) );
+        }
+
+        internal static Action<WeakReference, object, EventArgs> ReflectionTransportGenerator( MethodInfo method )
+        {
+            return ( weakReference, sender, args ) =>
+                   {
+                       object target = null;
+                       if ( !method.IsStatic )
+                       {
+                           target = GetTarget.Invoke( weakReference, null );
+                           if ( target == null )
+                           {
+                               return;
+                           }
+                       }
+                       method.Invoke( target, new[] {sender, args} );
+                   };
         }
 
         private static string GetAnonymousMethodName()
