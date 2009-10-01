@@ -39,7 +39,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         /// Contributes to the activation of the instance in the specified context.
         /// </summary>
         /// <param name="context">The context.</param>
-        public override void Activate( IContext context )
+        public override void Activate( IContext context, InstanceReference reference )
         {
             var messageBroker = context.Kernel.Components.Get<IWeakEventMessageBroker>();
 
@@ -48,7 +48,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             foreach ( PublicationDirective publication in publications )
             {
                 IMessageChannel channel = messageBroker.GetChannel( publication.Channel );
-                channel.AddPublication( context.Instance, publication.Event );
+                channel.AddPublication( reference.Instance, publication.Event );
             }
 
             List<SubscriptionDirective> subscriptions = context.Plan.GetAll<SubscriptionDirective>().ToList();
@@ -56,7 +56,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             foreach ( SubscriptionDirective subscription in subscriptions )
             {
                 IMessageChannel channel = messageBroker.GetChannel( subscription.Channel );
-                channel.AddSubscription( context.Instance, subscription.MethodInfo );
+                channel.AddSubscription( reference.Instance, subscription.MethodInfo );
             }
         }
     }
