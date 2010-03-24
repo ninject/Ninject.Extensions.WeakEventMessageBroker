@@ -1,20 +1,12 @@
 #region License
 
-//
-// Copyright © 2009 Ian Davis <ian.f.davis@gmail.com>
 // 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Author: Ian Davis <ian@innovatian.com>
+// Copyright (c) 2009-2010, Innovatian Software, LLC
 //
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+// Dual-licensed under the Apache License, Version 2.0, and the Microsoft Public License (Ms-PL).
+// See the file LICENSE.txt for details.
+// 
 
 #endregion
 
@@ -31,7 +23,11 @@ using System.Threading;
 
 namespace Ninject.Extensions.WeakEventMessageBroker
 {
+    #region Using Directives
+
     using TransportTable = Dictionary<MethodInfo, Action<WeakReference, object, EventArgs>>;
+
+    #endregion
 
     internal static class TransportProvider
     {
@@ -41,11 +37,30 @@ namespace Ninject.Extensions.WeakEventMessageBroker
                                                         typeof (WeakReference), typeof (object), typeof (EventArgs)
                                                     };
 
-        private static readonly ReaderWriterLockSlim TransportLock = new ReaderWriterLockSlim();
         private static readonly TransportTable Transports = new TransportTable();
+
+#if SILVERLIGHT
+        private static readonly object SyncRoot = new object();
+#else
+        private static readonly ReaderWriterLockSlim TransportLock = new ReaderWriterLockSlim();
+#endif
 
         internal static Action<WeakReference, object, EventArgs> GetTransport( MethodInfo method )
         {
+#if SILVERLIGHT
+            lock (SyncRoot)
+            {
+                Action<WeakReference, object, EventArgs> existingTransport;
+                if ( Transports.TryGetValue( method, out existingTransport ) )
+                {
+                    return existingTransport;
+                }
+                GuardAgainstClosures( method );
+                Action<WeakReference, object, EventArgs> transport = CreateTransportMethod( method );
+                Transports[method] = transport;
+                return transport;
+            }
+#else
             TransportLock.EnterUpgradeableReadLock();
             try
             {
@@ -71,6 +86,8 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             {
                 TransportLock.ExitUpgradeableReadLock();
             }
+#endif
+            // #if SILVERLIGHT
         }
 
         private static void GuardAgainstClosures( MethodInfo method )
@@ -97,7 +114,8 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 #if SILVERLIGHT
             var dynamicMethod = new DynamicMethod( GetAnonymousMethodName(), null, Parameters, method.DeclaringType );
 #else
-            var dynamicMethod = new DynamicMethod( GetAnonymousMethodName(), null, Parameters, method.DeclaringType, true );
+            var dynamicMethod = new DynamicMethod( GetAnonymousMethodName(), null, Parameters, method.DeclaringType,
+                                                   true );
 #endif
             ILGenerator il = dynamicMethod.GetILGenerator();
             if ( !method.IsStatic )

@@ -1,20 +1,12 @@
 #region License
 
-//
-// Copyright © 2009 Ian Davis <ian.f.davis@gmail.com>
 // 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// Author: Ian Davis <ian@innovatian.com>
+// Copyright (c) 2009-2010, Innovatian Software, LLC
 //
-//    http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
+// Dual-licensed under the Apache License, Version 2.0, and the Microsoft Public License (Ms-PL).
+// See the file LICENSE.txt for details.
+// 
 
 #endregion
 
@@ -23,6 +15,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Ninject.Infrastructure.Disposal;
 
@@ -192,14 +185,26 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         {
             lock ( _subscriptions )
             {
-                _subscriptions.RemoveAll( subscription => subscription.Target != null &&
-                                                          !subscription.Target.IsAlive );
+                List<TransportCacheEntry> toRemove =
+                    _subscriptions.Where( subscription => subscription.Target != null &&
+                                                          !subscription.Target.IsAlive )
+                        .ToList();
+                foreach ( TransportCacheEntry subscription in toRemove )
+                {
+                    _subscriptions.Remove( subscription );
+                }
             }
 
             lock ( _publications )
             {
-                _publications.RemoveAll( publication => publication.Instance != null &&
-                                                        !publication.Instance.IsAlive );
+                List<Publication> toRemove =
+                    _publications.Where( publication => publication.Instance != null &&
+                                                        !publication.Instance.IsAlive )
+                        .ToList();
+                foreach ( Publication publication in toRemove )
+                {
+                    _publications.Remove( publication );
+                }
             }
         }
     }
