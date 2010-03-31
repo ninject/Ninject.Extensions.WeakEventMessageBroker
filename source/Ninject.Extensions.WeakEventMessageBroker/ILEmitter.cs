@@ -10,6 +10,8 @@
 
 #endregion
 
+#if !NO_LCG
+
 #region Using Directives
 
 using System.Collections.Generic;
@@ -65,3 +67,4 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         }
     }
 }
+#endif //!NO_LCG
