@@ -43,11 +43,12 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         void AddPublication( object instance, EventInfo eventInfo );
 
         /// <summary>
-        /// 
+        /// Adds a subscription to the channel.
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="method"></param>
-        void AddSubscription( object instance, MethodInfo method );
+        /// <param name="thread">The thread on which the message should be delivered.</param>
+        void AddSubscription( object instance, MethodInfo method, DeliveryThread thread );
 
         /// <summary>
         /// Closes the channel releasing its resources.

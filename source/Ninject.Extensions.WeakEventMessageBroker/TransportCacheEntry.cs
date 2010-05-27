@@ -23,8 +23,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         public readonly WeakReference Target;
         public readonly Action<WeakReference, object, EventArgs> Transport;
 
-        public TransportCacheEntry( Action<WeakReference, object, EventArgs> transport,
-                                    WeakReference target )
+        public TransportCacheEntry( Action<WeakReference, object, EventArgs> transport, WeakReference target )
         {
             Transport = transport;
             Target = target;

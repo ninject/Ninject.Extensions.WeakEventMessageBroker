@@ -38,5 +38,10 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         /// Gets the name of the channel to subscribe to.
         /// </summary>
         public string Channel { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the thread that the message should be delivered on.
+        /// </summary>
+        public DeliveryThread Thread { get; set; }
     }
 }

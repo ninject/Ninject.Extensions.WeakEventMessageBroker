@@ -92,11 +92,15 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="method"></param>
-        public void AddSubscription( object instance, MethodInfo method )
+        /// <param name="thread"></param>
+        public void AddSubscription( object instance, MethodInfo method, DeliveryThread thread )
         {
-            var transportCacheEntry = new TransportCacheEntry( TransportProvider.GetTransport( method ),
-                                                               new WeakReference( instance ) );
-            _subscriptions.Add( transportCacheEntry );
+            lock (_subscriptions)
+            {
+                var entry = new TransportCacheEntry(TransportProvider.GetTransport(method, thread),
+                                                              new WeakReference(instance));
+                _subscriptions.Add(entry);
+            }
         }
 
         /// <summary>

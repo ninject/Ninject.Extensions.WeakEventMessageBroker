@@ -47,7 +47,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         private static readonly ReaderWriterLockSlim TransportLock = new ReaderWriterLockSlim();
 #endif
 
-        internal static Action<WeakReference, object, EventArgs> GetTransport( MethodInfo method )
+        internal static Action<WeakReference, object, EventArgs> GetTransport(MethodInfo method, DeliveryThread deliveryThread)
         {
 #if SILVERLIGHT || NETCF
             lock (SyncRoot)
@@ -58,7 +58,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
                     return existingTransport;
                 }
                 GuardAgainstClosures( method );
-                Action<WeakReference, object, EventArgs> transport = CreateTransportMethod( method );
+                Action<WeakReference, object, EventArgs> transport = CreateTransportMethod( method, deliveryThread );
                 Transports[method] = transport;
                 return transport;
             }
@@ -75,7 +75,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
                 try
                 {
                     GuardAgainstClosures( method );
-                    Action<WeakReference, object, EventArgs> transport = CreateTransportMethod( method );
+                    Action<WeakReference, object, EventArgs> transport = CreateTransportMethod( method, deliveryThread );
                     Transports[method] = transport;
                     return transport;
                 }
@@ -101,17 +101,17 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             }
         }
 
-        private static Action<WeakReference, object, EventArgs> CreateTransportMethod( MethodInfo method )
+        private static Action<WeakReference, object, EventArgs> CreateTransportMethod( MethodInfo method, DeliveryThread deliveryThread )
         {
 #if NO_LCG
-            return ReflectionTransportGenerator( method );
+            return ReflectionTransportGenerator( method, deliveryThread );
 #else
-            return DynamicTransportGenerator( method );
+            return DynamicTransportGenerator( method, deliveryThread );
 #endif
         }
 
 #if !NO_LCG
-        internal static Action<WeakReference, object, EventArgs> DynamicTransportGenerator( MethodInfo method )
+        internal static Action<WeakReference, object, EventArgs> DynamicTransportGenerator(MethodInfo method, DeliveryThread deliveryThread)
         {
 #if SILVERLIGHT
             var dynamicMethod = new DynamicMethod( GetAnonymousMethodName(), null, Parameters, method.DeclaringType );
@@ -131,8 +131,15 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         }
 #endif // !NO_LCG
 
-        internal static Action<WeakReference, object, EventArgs> ReflectionTransportGenerator( MethodInfo method )
+        internal static Action<WeakReference, object, EventArgs> ReflectionTransportGenerator(MethodInfo method, DeliveryThread deliveryThread)
         {
+            SynchronizationContext context = null;
+#if !SILVERLIGHT && !NETCF
+            if (deliveryThread == DeliveryThread.UserInterface)
+            {
+                context = SynchronizationContext.Current;
+            }
+#endif
             return ( weakReference, sender, args ) =>
                    {
                        object target = null;
@@ -144,13 +151,69 @@ namespace Ninject.Extensions.WeakEventMessageBroker
                                return;
                            }
                        }
-                       method.Invoke( target, new[] {sender, args} );
+                       Deliver(method, target, deliveryThread, sender, args, context);
+                       
                    };
+        }
+
+        private static void Deliver(MethodInfo method, object target, DeliveryThread deliveryThread, object sender, EventArgs args, SynchronizationContext context)
+        {
+            switch (deliveryThread)
+            {
+                case DeliveryThread.Background:
+                    DeliverViaBackgroundThread(method, target, sender, args);
+                    break;
+#if !SILVERLIGHT && !NETCF
+                case DeliveryThread.UserInterface:
+                    DeliverViaSynchronizationContext(method, context, target, sender, args);
+                    break;
+#endif
+                default:
+                    DeliverMessage(method, target, sender, args);
+                    break;
+            }
         }
 
         private static string GetAnonymousMethodName()
         {
             return "DynamicEventHandler" + Guid.NewGuid().ToString( "N" );
+        }
+
+        private static void DeliverMessage(MethodInfo method, object target, object sender, object args)
+        {
+            try
+            {
+                method.Invoke(target, new[] { sender, args });
+            }
+            catch (TargetInvocationException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    throw ex.InnerException;
+                }
+            }
+        }
+
+#if !SILVERLIGHT && !NETCF
+        private static void DeliverViaSynchronizationContext(MethodInfo method, SynchronizationContext context, object target, object sender, object args)
+        {
+            if (context != null)
+            {
+                context.Send(delegate
+                {
+                    DeliverMessage(method, target, sender, args);
+                }, null);
+            }
+            else
+            {
+                DeliverMessage(method, target, sender, args);
+            }
+        }
+#endif
+
+        private static void DeliverViaBackgroundThread(MethodInfo method, object target, object sender, object args)
+        {
+            ThreadPool.QueueUserWorkItem(s => DeliverMessage(method, target, sender, args));
         }
     }
 }

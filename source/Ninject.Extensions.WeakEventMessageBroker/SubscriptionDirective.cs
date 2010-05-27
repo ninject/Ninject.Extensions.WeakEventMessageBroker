@@ -29,10 +29,12 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         /// </summary>
         /// <param name="channel">The channel.</param>
         /// <param name="methodInfo">The method info.</param>
-        public SubscriptionDirective( string channel, MethodInfo methodInfo )
+        /// <param name="thread">The thread on which the message should be delivered.</param>
+        public SubscriptionDirective( string channel, MethodInfo methodInfo, DeliveryThread thread )
         {
             Channel = channel;
             MethodInfo = methodInfo;
+            Thread = thread;
         }
 
         /// <summary>
@@ -47,5 +49,10 @@ namespace Ninject.Extensions.WeakEventMessageBroker
         /// </summary>
         /// <value>The method info.</value>
         public MethodInfo MethodInfo { get; private set; }
+
+        /// <summary>
+        /// Gets the thread on which the message should be delivered.
+        /// </summary>
+        public DeliveryThread Thread { get; set; }
     }
 }

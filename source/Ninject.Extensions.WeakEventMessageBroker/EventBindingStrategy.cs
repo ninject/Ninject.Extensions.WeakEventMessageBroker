@@ -48,7 +48,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
             foreach ( SubscriptionDirective subscription in subscriptions )
             {
                 IMessageChannel channel = messageBroker.GetChannel( subscription.Channel );
-                channel.AddSubscription( reference.Instance, subscription.MethodInfo );
+                channel.AddSubscription( reference.Instance, subscription.MethodInfo, subscription.Thread );
             }
         }
     }

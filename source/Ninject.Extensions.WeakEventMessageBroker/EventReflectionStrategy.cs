@@ -74,7 +74,7 @@ namespace Ninject.Extensions.WeakEventMessageBroker
 
                 foreach ( SubscribeAttribute attribute in attributes )
                 {
-                    plan.Add( new SubscriptionDirective( attribute.Channel, method ) );
+                    plan.Add(new SubscriptionDirective(attribute.Channel, method, attribute.Thread));
                 }
             }
         }

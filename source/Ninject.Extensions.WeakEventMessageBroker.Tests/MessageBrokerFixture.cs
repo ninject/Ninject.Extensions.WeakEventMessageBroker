@@ -1,6 +1,9 @@
 ﻿#region Using Directives
 
 using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Windows.Forms;
 using Xunit;
 
 #endregion
@@ -202,6 +205,57 @@ namespace Ninject.Extensions.WeakEventMessageBroker.Tests
                 Assert.True( publisher.HasListeners );
             }
             Assert.False( publisher.HasListeners );
+        }
+
+        [Fact]
+        public void MessagesAreDeliveredOnBackgroundThreads()
+        {
+            PublisherMock publisher;
+            using (var kernel = new StandardKernel())
+            {
+                publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull(publisher);
+
+                var sub = kernel.Get<SubscriberBackgroundMock>();
+                Assert.NotNull(sub);
+                var id = Thread.CurrentThread.ManagedThreadId;
+                Assert.True(publisher.HasListeners);
+                publisher.SendMessage("test");
+                Thread.Sleep(1000);
+                Assert.Equal("test",sub.LastMessage);
+                Assert.NotEqual(0, sub.DeliveryThreadId);
+                Assert.NotEqual(id, sub.DeliveryThreadId);
+                Assert.True(sub.WasDeliveredFromThreadPool);
+            }
+            Assert.False(publisher.HasListeners);
+        }
+
+        [Fact]
+        public void MessagesAreDeliveredOnTheUserInterfaceThread()
+        {
+            Control control = new Control();
+            control.Visible = false;
+            control.Show();
+            Assert.NotEqual(IntPtr.Zero,control.Handle);
+
+            PublisherMock publisher;
+            using (var kernel = new StandardKernel())
+            {
+                publisher = kernel.Get<PublisherMock>();
+                Assert.NotNull(publisher);
+
+                var sub = kernel.Get<SubscriberUserInterfaceMock>();
+                Assert.NotNull(sub);
+                var id = Thread.CurrentThread.ManagedThreadId;
+                Assert.True(publisher.HasListeners);
+                ThreadPool.QueueUserWorkItem(s => publisher.SendMessage("test"));
+                Thread.Sleep(1000); // give the BG thread enough time to be created and execute.
+                Application.DoEvents(); // processes all waiting messages
+                Assert.Equal("test", sub.LastMessage);
+                Assert.NotEqual(0, sub.DeliveryThreadId);
+                Assert.Equal(id, sub.DeliveryThreadId);
+            }
+            Assert.False(publisher.HasListeners);
         }
     }
 }
