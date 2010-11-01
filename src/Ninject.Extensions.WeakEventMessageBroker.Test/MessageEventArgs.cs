@@ -4,7 +4,7 @@ using System;
 
 #endregion
 
-namespace Ninject.Extensions.WeakEventMessageBroker.Tests
+namespace Ninject.Extensions.WeakEventMessageBroker
 {
     public class MessageEventArgs : EventArgs
     {

@@ -6,7 +6,7 @@
 
 using System.Threading;
 
-namespace Ninject.Extensions.WeakEventMessageBroker.Tests
+namespace Ninject.Extensions.WeakEventMessageBroker
 {
     public class SubscriberMock
     {
