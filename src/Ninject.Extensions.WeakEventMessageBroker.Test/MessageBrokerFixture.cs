@@ -3,27 +3,12 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
-
-#if SILVERLIGHT
-#if SILVERLIGHT_MSTEST
-    using MsTest.Should;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Assert = AssertWithThrows;
-    using Fact = Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute;
-#else
-    using UnitDriven;
-    using UnitDriven.Should;
-    using Assert = AssertWithThrows;
-    using Fact = UnitDriven.TestMethodAttribute;
-#endif
-#else
+#if !SILVERLIGHT
     using System.Windows.Forms;
-    using Ninject.Extensions.WeakEventMessageBroker.MSTestAttributes;
+#endif
     using Xunit;
     using Xunit.Should;
-#endif
-    
-    [TestClass]
+
     public class MessageBrokerFixture
     {
         private const string UserInterfaceSynchronizedMessage = "test";
