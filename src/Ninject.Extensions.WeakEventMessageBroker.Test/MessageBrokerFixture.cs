@@ -6,8 +6,9 @@
 #if !SILVERLIGHT
     using System.Windows.Forms;
 #endif
+    using FluentAssertions;
+
     using Xunit;
-    using Xunit.Should;
 
     public class MessageBrokerFixture
     {
@@ -23,7 +24,7 @@
             {
                 var publisher = kernel.Get<PublisherMock>();
 
-                publisher.HasListeners.ShouldBeTrue();
+                publisher.HasListeners.Should().BeTrue();
             }
         }
 
@@ -38,7 +39,7 @@
 
                 publisher.SendMessage(Message);
 
-                sub.LastMessage.ShouldBe(Message);
+                sub.LastMessage.Should().Be(Message);
             }
         }
 
@@ -58,8 +59,8 @@
                 pub2.SendMessage(Message2);
                 var receivedMessage2 = subscriber.LastMessage;
 
-                receivedMessage1.ShouldBe(Message1);
-                receivedMessage2.ShouldBe(Message2);
+                receivedMessage1.Should().Be(Message1);
+                receivedMessage2.Should().Be(Message2);
             }
         }
 
@@ -75,8 +76,8 @@
 
                 publisher.SendMessage(Message);
 
-                sub1.LastMessage.ShouldBe(Message);
-                sub2.LastMessage.ShouldBe(Message);
+                sub1.LastMessage.Should().Be(Message);
+                sub2.LastMessage.Should().Be(Message);
             }
         }
 
@@ -99,10 +100,10 @@
                 var subscriber1ReceivedMessage2 = sub1.LastMessage;
                 var subscriber2ReceivedMessage2 = sub2.LastMessage;
 
-                subscriber1ReceivedMessage1.ShouldBe(Message1);
-                subscriber2ReceivedMessage1.ShouldBe(Message1);
-                subscriber1ReceivedMessage2.ShouldBe(Message2);
-                subscriber2ReceivedMessage2.ShouldBe(Message2);
+                subscriber1ReceivedMessage1.Should().Be(Message1);
+                subscriber2ReceivedMessage1.Should().Be(Message1);
+                subscriber1ReceivedMessage2.Should().Be(Message2);
+                subscriber2ReceivedMessage2.Should().Be(Message2);
             }
         }
 
@@ -118,8 +119,8 @@
                 messageBroker.DisableChannel("message://PublisherMock/MessageReceived");
                 publisher.SendMessage("Hello, world!");
 
-                publisher.HasListeners.ShouldBeTrue();
-                subscriber.LastMessage.ShouldBeNull();
+                publisher.HasListeners.Should().BeTrue();
+                subscriber.LastMessage.Should().BeNull();
             }
         }
 
@@ -134,9 +135,9 @@
                 var messageBroker = kernel.Components.Get<IWeakEventMessageBroker>();
                 messageBroker.CloseChannel("message://PublisherMock/MessageReceived");
                 publisher.SendMessage("Hello, world!");
-                
-                publisher.HasListeners.ShouldBeFalse();
-                subscriber.LastMessage.ShouldBeNull();
+
+                publisher.HasListeners.Should().BeFalse();
+                subscriber.LastMessage.Should().BeNull();
             }
         }
 
@@ -152,15 +153,15 @@
                 IMessageChannel channel = messageBroker.GetChannel("message://PublisherMock/MessageReceived");
                 int subscriptionCountBeforeSubscriberDisposal = channel.Subscriptions.Count;
 
-                subscriber.ShouldNotBeNull();
+                subscriber.Should().NotBeNull();
                 subscriber = null; // needed for GC to clean.
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 publisher.SendMessage("message"); // when messages are sent the subscriptions are updated.
                 int subscriptionCountAfterSubscriberDisposal = channel.Subscriptions.Count;
 
-                subscriptionCountBeforeSubscriberDisposal.ShouldBe(1);
-                subscriptionCountAfterSubscriberDisposal.ShouldBe(0);
+                subscriptionCountBeforeSubscriberDisposal.Should().Be(1);
+                subscriptionCountAfterSubscriberDisposal.Should().Be(0);
             }
         }
 
@@ -172,10 +173,10 @@
             {
                 publisher = kernel.Get<PublisherMock>();
                 var sub = kernel.Get<SubscriberMock>();
-                sub.ShouldNotBeNull();
+                sub.Should().NotBeNull();
             }
 
-            publisher.HasListeners.ShouldBeFalse();
+            publisher.HasListeners.Should().BeFalse();
         }
 
         [Fact]
@@ -191,10 +192,10 @@
                 publisher.SendMessage(Message);
                 Thread.Sleep(100);
 
-                sub.LastMessage.ShouldBe(Message);
-                sub.DeliveryThreadId.ShouldNotBe(0);
-                sub.DeliveryThreadId.ShouldNotBe(id);
-                sub.WasDeliveredFromThreadPool.ShouldBeTrue();
+                sub.LastMessage.Should().Be(Message);
+                sub.DeliveryThreadId.Should().NotBe(0);
+                sub.DeliveryThreadId.Should().NotBe(id);
+                sub.WasDeliveredFromThreadPool.Should().BeTrue();
             }
         }
 
@@ -217,8 +218,8 @@
                 Thread.Sleep(1000); // give the BG thread enough time to be created and execute.
 #if !SILVERLIGHT
                 Application.DoEvents(); // processes all waiting messages
-                sub.LastMessage.ShouldBe(UserInterfaceSynchronizedMessage);
-                sub.DeliveryThreadId.ShouldBe(id);
+                sub.LastMessage.Should().Be(UserInterfaceSynchronizedMessage);
+                sub.DeliveryThreadId.Should().Be(id);
 #else
                 subscriber = sub;
 #endif
@@ -229,11 +230,11 @@
         [Fact]
         public void MessagesAreDeliveredOnTheUserInterfaceThread_Verify_Workaround()
         {
-            subscriber.ShouldNotBeNull();
+            subscriber.Should().NotBeNull();
 
             var id = Thread.CurrentThread.ManagedThreadId;
-            subscriber.LastMessage.ShouldBe(UserInterfaceSynchronizedMessage);
-            subscriber.DeliveryThreadId.ShouldBe(id);
+            subscriber.LastMessage.Should().Be(UserInterfaceSynchronizedMessage);
+            subscriber.DeliveryThreadId.Should().Be(id);
         }
 #endif
 

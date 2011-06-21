@@ -73,6 +73,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions.Silverlight">
+      <HintPath>..\..\tools\FluentAssertions\Silverlight-4.0\FluentAssertions.Silverlight.dll</HintPath>
+    </Reference>
     <Reference Include="Ninject">
       <HintPath>..\..\lib\Ninject\silverlight-4.0\Ninject.dll</HintPath>
     </Reference>
@@ -105,9 +108,6 @@
     </Compile>
     <Compile Include="..\Ninject.Extensions.WeakEventMessageBroker.Test\SubscriberMock.cs">
       <Link>SubscriberMock.cs</Link>
-    </Compile>
-    <Compile Include="..\Ninject.Extensions.WeakEventMessageBroker.Test\XUnitShould.cs">
-      <Link>XUnitShould.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
