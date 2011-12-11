@@ -141,6 +141,7 @@
             }
         }
 
+#if !MONO // GC.Collect works differently on Mono
         [Fact]
         public void DisposingObjectRemovesSubscriptionsRequestedByIt()
         {
@@ -164,6 +165,7 @@
                 subscriptionCountAfterSubscriberDisposal.Should().Be(0);
             }
         }
+#endif
 
         [Fact]
         public void PublishersAreClearedWhenBrokerIsShutDown()
