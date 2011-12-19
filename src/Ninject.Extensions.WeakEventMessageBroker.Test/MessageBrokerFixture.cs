@@ -192,7 +192,7 @@
                 var id = Thread.CurrentThread.ManagedThreadId;
 
                 publisher.SendMessage(Message);
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
 
                 sub.LastMessage.Should().Be(Message);
                 sub.DeliveryThreadId.Should().NotBe(0);
