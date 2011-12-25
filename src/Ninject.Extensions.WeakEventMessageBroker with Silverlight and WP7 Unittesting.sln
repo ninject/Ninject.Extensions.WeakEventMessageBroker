@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninject.Extensions.WeakEven
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninject.Extensions.WeakEventMessageBroker.Tests", "Ninject.Extensions.WeakEventMessageBroker.Test\Ninject.Extensions.WeakEventMessageBroker.Tests.csproj", "{F66149D6-AA5D-479B-9B58-1DA98CBB00A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninject.Extensions.WeakEventMessageBroker.SilverlightTests", "Ninject.Extensions.WeakEventMessageBroker.SilverlightTests\Ninject.Extensions.WeakEventMessageBroker.SilverlightTests.csproj", "{489C6943-F6B4-4301-AA97-D7550C969BA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninject.Extensions.WeakEventMessageBroker.WindowsPhone7Tests", "Ninject.Extensions.WeakEventMessageBroker.WindowsPhone7Tests\Ninject.Extensions.WeakEventMessageBroker.WindowsPhone7Tests.csproj", "{BECDA738-C474-4D79-AC0F-6CBEEEAD183F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +23,16 @@ Global
 		{F66149D6-AA5D-479B-9B58-1DA98CBB00A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F66149D6-AA5D-479B-9B58-1DA98CBB00A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F66149D6-AA5D-479B-9B58-1DA98CBB00A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{489C6943-F6B4-4301-AA97-D7550C969BA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{489C6943-F6B4-4301-AA97-D7550C969BA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{489C6943-F6B4-4301-AA97-D7550C969BA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{489C6943-F6B4-4301-AA97-D7550C969BA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BECDA738-C474-4D79-AC0F-6CBEEEAD183F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BECDA738-C474-4D79-AC0F-6CBEEEAD183F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BECDA738-C474-4D79-AC0F-6CBEEEAD183F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{BECDA738-C474-4D79-AC0F-6CBEEEAD183F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BECDA738-C474-4D79-AC0F-6CBEEEAD183F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BECDA738-C474-4D79-AC0F-6CBEEEAD183F}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
