@@ -7,7 +7,7 @@ using System.Security;
 // associated with an assembly.
 
 [assembly : AssemblyTitle( "Ninject.Extensions.WeakEventBroker" )]
-[assembly : AssemblyDescription( "" )]
+[assembly : AssemblyDescriptionAttribute("Message broker extension for Ninject using weak events")]
 [assembly : AssemblyConfiguration( "" )]
 [assembly : AssemblyTrademark( "" )]
 [assembly : AssemblyCulture( "" )]
